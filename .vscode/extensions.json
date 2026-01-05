@@ -1,0 +1,12 @@
+{
+	"recommendations": [
+		"golang.go",
+		"github.copilot",
+		"github.copilot-chat",
+		"eamodio.gitlens",
+		"streetsidesoftware.code-spell-checker",
+		"yzhang.markdown-all-in-one",
+		"davidanson.vscode-markdownlint"
+	],
+	"unwantedRecommendations": []
+}

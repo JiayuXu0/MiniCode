@@ -1,0 +1,55 @@
+{
+    // Go 语言设置
+    "go.useLanguageServer": true,
+    "go.lintTool": "golangci-lint",
+    "go.lintOnSave": "workspace",
+    "go.formatTool": "goimports",
+    "go.formatOnSave": true,
+    "go.buildOnSave": "off",
+    "go.vetOnSave": "workspace",
+    "go.testOnSave": false,
+    "go.coverOnSave": false,
+    // Go 测试设置
+    "go.testFlags": [
+        "-v"
+    ],
+    "go.testTimeout": "30s",
+    // Go 工具路径
+    "go.toolsManagement.autoUpdate": true,
+    // 编辑器设置
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "editor.rulers": [
+        80,
+        120
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": false,
+    // 文件设置
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/minicode": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/vendor/**": true
+    },
+    // 终端设置
+    "terminal.integrated.env.osx": {
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+    },
+    "terminal.integrated.env.linux": {
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+    },
+    // 文件关联
+    "files.associations": {
+        "*.md": "markdown",
+        "go.mod": "go.mod",
+        "go.sum": "go.sum"
+    }
+}

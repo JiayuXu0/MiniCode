@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "运行 MiniCode",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "args": [
+                "你好，介绍一下你自己"
+            ],
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "运行 MiniCode (自定义参数)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "args": [
+                "${input:userPrompt}"
+            ],
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "调试当前文件",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${file}"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "userPrompt",
+            "type": "promptString",
+            "description": "请输入你想问 AI 的问题",
+            "default": "你好"
+        }
+    ]
+}
