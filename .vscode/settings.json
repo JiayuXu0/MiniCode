@@ -4,7 +4,14 @@
     "go.lintTool": "golangci-lint",
     "go.lintOnSave": "workspace",
     "go.formatTool": "goimports",
-    "go.formatOnSave": true,
+    // "go.formatOnSave": true, // 已废弃，使用 editor.formatOnSave
+    "[go]": {
+        "editor.defaultFormatter": "golang.go",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "always"
+        }
+    },
     "go.buildOnSave": "off",
     "go.vetOnSave": "workspace",
     "go.testOnSave": false,
@@ -18,8 +25,11 @@
     "go.toolsManagement.autoUpdate": true,
     // 编辑器设置
     "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
+    "[go]": {
+        "editor.defaultFormatter": "golang.go",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
     },
     "editor.rulers": [
         80,
