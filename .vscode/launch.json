@@ -6,6 +6,7 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
+            "console": "integratedTerminal",
             "program": "${workspaceFolder}",
             "args": [
                 "帮我看下本地目录有啥"
@@ -17,6 +18,7 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
+            "console": "integratedTerminal",
             "program": "${workspaceFolder}",
             "args": [
                 "${input:userPrompt}"
@@ -28,6 +30,7 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
+            "console": "integratedTerminal",
             "program": "${file}"
         }
     ],

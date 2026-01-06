@@ -6,11 +6,13 @@ import (
 	"log"
 	"os"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/fantasy"
 	"charm.land/fantasy/providers/openaicompat"
 	"github.com/joho/godotenv"
 
 	"github.com/JiayuXu0/MiniCode/tools"
+	"github.com/JiayuXu0/MiniCode/tui"
 )
 
 const (
@@ -24,12 +26,6 @@ func main() {
 		log.Printf("警告: 无法加载 .env 文件: %v", err)
 	}
 
-	if len(os.Args) < 2 {
-		fmt.Println("用法: go run . <你的问题>")
-		os.Exit(1)
-	}
-
-	prompt := os.Args[1]
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		fmt.Fprintln(os.Stderr, "错误: 请设置 OPENAI_API_KEY 环境变量")
@@ -58,11 +54,12 @@ func main() {
 		fantasy.WithSystemPrompt(systemPrompt),
 		fantasy.WithTools(tools.NewGlobTool()),
 	)
-	result, err := agent.Generate(ctx, fantasy.AgentCall{Prompt: prompt})
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "生成响应失败: %v\n", err)
+
+	// 直接启动 TUI
+	m := tui.NewTUI(agent)
+	p := tea.NewProgram(m)
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("运行错误: %v", err)
 		os.Exit(1)
 	}
-
-	fmt.Println(result.Response.Content.Text())
 }
