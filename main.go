@@ -6,7 +6,8 @@ import (
 	"log"
 	"os"
 
-	tea "charm.land/bubbletea/v2"
+	tea "github.com/charmbracelet/bubbletea"
+
 	"charm.land/fantasy"
 	"charm.land/fantasy/providers/openaicompat"
 	"github.com/joho/godotenv"
@@ -55,9 +56,8 @@ func main() {
 		fantasy.WithTools(tools.NewGlobTool()),
 	)
 
-	// 直接启动 TUI
 	m := tui.NewTUI(agent)
-	p := tea.NewProgram(m)
+	p := tea.NewProgram(m, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("运行错误: %v", err)
 		os.Exit(1)

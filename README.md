@@ -1,10 +1,10 @@
 # MiniCode
 
-一个基于 Fantasy 库的简单 AI Agent 项目，使用智谱 GLM API。
+一个基于 Fantasy 库的交互式 AI Agent 项目，使用智谱 GLM API 和 Bubble Tea TUI 框架。
 
 ## 🎯 项目简介
 
-MiniCode 是一个学习项目，展示如何使用 [Fantasy](https://charm.land/fantasy) 库创建 AI Agent，并通过 OpenAI 兼容接口连接到智谱 GLM 模型。
+MiniCode 是一个学习项目，展示如何使用 [Fantasy](https://charm.land/fantasy) 库创建 AI Agent，并通过 [Bubble Tea](https://github.com/charmbracelet/bubbletea) 构建交互式终端界面。
 
 ## 🚀 快速开始
 
@@ -32,28 +32,30 @@ export OPENAI_API_KEY=你的GLM_API_KEY
 ### 4. 运行
 
 ```bash
-go run . "你好，介绍一下你自己"
+go run .
 ```
 
 或编译后运行：
 
 ```bash
 go build -o minicode .
-./minicode "你的问题"
+./minicode
 ```
 
 ## 📖 使用说明
 
-### 基本用法
+### 交互式界面
 
-```bash
-# 直接运行
-go run . "你的问题"
+启动后进入交互式聊天界面：
 
-# 示例
-go run . "用 Go 语言写一个 Hello World"
-go run . "解释一下什么是 goroutine"
-```
+- **Enter**: 发送消息
+- **Ctrl+C / Esc**: 退出程序
+
+### 功能特性
+
+- 交互式终端聊天界面
+- 支持多轮对话上下文
+- 内置 glob 文件搜索工具
 
 ### VSCode 调试
 
@@ -67,18 +69,15 @@ go run . "解释一下什么是 goroutine"
 
 ```
 MiniCode/
-├── main.go              # 主程序
-├── go.mod              # Go 模块文件
-├── go.sum              # 依赖锁定文件
-├── docs/               # 文档目录
-│   ├── 01.md
-│   └── phase01-hello-agent.md
-└── .vscode/            # VSCode 配置
-    ├── launch.json     # 调试配置
-    ├── tasks.json      # 任务配置
-    ├── settings.json   # 工作区设置
-    ├── extensions.json # 推荐扩展
-    └── README.md       # VSCode 配置说明
+├── main.go              # 主程序入口
+├── tui/
+│   └── tui.go           # TUI 界面实现
+├── tools/
+│   └── glob.go          # glob 文件搜索工具
+├── go.mod               # Go 模块文件
+├── go.sum               # 依赖锁定文件
+├── docs/                # 文档目录
+└── .vscode/             # VSCode 配置
 ```
 
 ## 🔧 技术栈
