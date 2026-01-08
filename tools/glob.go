@@ -26,16 +26,16 @@ func Glob(ctx context.Context, input GlobInput, call fantasy.ToolCall) (fantasy.
 	// 转换为绝对路径
 	absPath, err := filepath.Abs(searchPath)
 	if err != nil {
-		return fantasy.NewTextErrorResponse(fmt.Sprintf("无法解析路径: %v", err)), nil
+		return fantasy.NewTextErrorResponse(fmt.Sprintf("Cannot resolve path: %v", err)), nil
 	}
 
 	// 检查目录是否存在
 	info, err := os.Stat(absPath)
 	if err != nil {
-		return fantasy.NewTextErrorResponse(fmt.Sprintf("目录不存在: %v", err)), nil
+		return fantasy.NewTextErrorResponse(fmt.Sprintf("Directory not found: %v", err)), nil
 	}
 	if !info.IsDir() {
-		return fantasy.NewTextErrorResponse(fmt.Sprintf("路径不是目录: %s", absPath)), nil
+		return fantasy.NewTextErrorResponse(fmt.Sprintf("Path is not a directory: %s", absPath)), nil
 	}
 
 	// 构建完整的 glob pattern
@@ -44,12 +44,12 @@ func Glob(ctx context.Context, input GlobInput, call fantasy.ToolCall) (fantasy.
 	// 使用 doublestar 进行匹配（支持 ** 递归）
 	matches, err := doublestar.FilepathGlob(pattern)
 	if err != nil {
-		return fantasy.NewTextErrorResponse(fmt.Sprintf("glob 匹配失败: %v", err)), nil
+		return fantasy.NewTextErrorResponse(fmt.Sprintf("Glob match failed: %v", err)), nil
 	}
 
 	// 如果没有匹配结果
 	if len(matches) == 0 {
-		return fantasy.NewTextResponse(fmt.Sprintf("没有找到匹配 '%s' 的文件", input.Pattern)), nil
+		return fantasy.NewTextResponse(fmt.Sprintf("No files matching '%s'", input.Pattern)), nil
 	}
 
 	// 将绝对路径转换为相对路径（相对于搜索目录）
@@ -63,13 +63,13 @@ func Glob(ctx context.Context, input GlobInput, call fantasy.ToolCall) (fantasy.
 	}
 
 	// 构建返回结果
-	result := fmt.Sprintf("找到 %d 个匹配的文件:\n%s", len(relPaths), strings.Join(relPaths, "\n"))
+	result := fmt.Sprintf("Found %d matching files:\n%s", len(relPaths), strings.Join(relPaths, "\n"))
 	return fantasy.NewTextResponse(result), nil
 }
 
 // NewGlobTool 创建并返回 glob 工具
 func NewGlobTool() fantasy.AgentTool {
-	return fantasy.NewAgentTool(
+	return fantasy.NewParallelAgentTool(
 		"glob",
 		"Match and list filesystem paths using wildcard patterns"+
 			"(e.g., *.py, data/**/*.json) within a specified directory, "+

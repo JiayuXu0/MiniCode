@@ -157,7 +157,7 @@ func searchFile(path string, re *regexp.Regexp, limit int) ([]GrepMatch, error) 
 }
 
 func NewGrepTool() fantasy.AgentTool {
-	return fantasy.NewAgentTool(
+	return fantasy.NewParallelAgentTool(
 		"grep",
 		"Search file contents using regular expressions. Returns matching lines with file paths and line numbers.",
 		Grep,

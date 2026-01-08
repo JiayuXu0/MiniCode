@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,13 +30,11 @@ const (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("警告: 无法加载 .env 文件: %v", err)
-	}
+	_ = godotenv.Load() // 忽略 .env 不存在的情况
 
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
-		fmt.Fprintln(os.Stderr, "错误: 请设置 OPENAI_API_KEY 环境变量")
+		fmt.Fprintln(os.Stderr, "Error: OPENAI_API_KEY environment variable is required")
 		os.Exit(1)
 	}
 
@@ -49,13 +46,13 @@ func main() {
 		openaicompat.WithName("zai"),
 	)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "创建 provider 失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to create provider: %v\n", err)
 		os.Exit(1)
 	}
 
 	model, err := provider.LanguageModel(ctx, modelID)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "获取模型失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to get model: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -65,13 +62,18 @@ func main() {
 			tools.NewGlobTool(),
 			tools.NewViewTool(),
 			tools.NewGrepTool(),
+			tools.NewBashTool(),
+			tools.NewWriteTool(),
+			tools.NewEditTool(),
 		),
 	)
 
-	m := tui.NewTUI(agent)
+	m := tui.New(agent)
 	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
+	m.SetProgram(p) // 传递 Program 引用，用于流式回调
+
 	if _, err := p.Run(); err != nil {
-		fmt.Printf("运行错误: %v", err)
+		fmt.Fprintf(os.Stderr, "Runtime error: %v\n", err)
 		os.Exit(1)
 	}
 }
