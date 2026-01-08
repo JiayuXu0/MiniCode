@@ -33,3 +33,6 @@ go.work.sum
 cspell.json
 
 MiniCode
+
+# Claude Code
+CLAUDE.md

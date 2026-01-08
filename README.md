@@ -1,10 +1,29 @@
 # MiniCode
 
-一个基于 Fantasy 库的交互式 AI Agent 项目，使用智谱 GLM API 和 Bubble Tea TUI 框架。
+**30 天打造 Mini 版 Claude Code**
 
-## 🎯 项目简介
+一个从零开始构建 AI 编程助手的实战教程项目。通过 30 天的渐进式学习，你将掌握如何使用 Go 语言构建一个类似 Claude Code 的终端 AI Agent。
 
-MiniCode 是一个学习项目，展示如何使用 [Fantasy](https://charm.land/fantasy) 库创建 AI Agent，并通过 [Bubble Tea](https://github.com/charmbracelet/bubbletea) 构建交互式终端界面。
+## 🎯 项目目标
+
+通过这个教程，你将学会：
+- 使用 Fantasy SDK 构建 AI Agent
+- 实现工具调用（文件搜索、代码编辑、命令执行等）
+- 构建交互式 TUI 界面
+- 实现流式输出、多轮对话、上下文管理
+- 最终打造一个可用的 AI 编程助手
+
+## 📅 教程进度
+
+| 阶段 | 天数 | 主题 | 状态 |
+|------|------|------|------|
+| 基础 | Day 1 | [创建第一个 AI Agent](docs/01.md) | ✅ |
+| 基础 | Day 2 | [给 Agent 添加工具](docs/02.md) | ✅ |
+| 基础 | Day 3 | [构建交互式 TUI 界面](docs/03.md) | ✅ |
+| 基础 | Day 4 | 实现流式输出 | 🚧 |
+| 进阶 | Day 5-10 | 核心工具集（Read/Write/Bash/Grep） | 📋 |
+| 进阶 | Day 11-20 | Agent 循环与上下文管理 | 📋 |
+| 高级 | Day 21-30 | 高级特性与优化 | 📋 |
 
 ## 🚀 快速开始
 
@@ -108,8 +127,8 @@ Fantasy 是一个统一的 AI Agent SDK，提供：
 ## 🎓 学习资源
 
 - [Fantasy 官方文档](https://charm.land/fantasy)
+- [Bubble Tea 教程](https://github.com/charmbracelet/bubbletea)
 - [智谱 GLM 文档](https://bigmodel.cn/dev/api)
-- [Phase 01: Hello Agent](docs/phase01-hello-agent.md)
 
 ## 🤝 贡献
 
@@ -118,8 +137,3 @@ Fantasy 是一个统一的 AI Agent SDK，提供：
 ## 📄 许可证
 
 MIT License
-
-## 🙏 致谢
-
-- [Charmbracelet](https://charm.sh/) - Fantasy 库的开发者
-- [智谱 AI](https://bigmodel.cn/) - 提供 GLM 模型
