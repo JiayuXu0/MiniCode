@@ -126,8 +126,6 @@ go run .
 | Day 11-20 | Agent 循环 | 决策引擎、上下文管理 | 📋 |
 | Day 21-30 | 高级特性 | 子 Agent、记忆、部署 | 📋 |
 
-> 每篇教程 300-1400 行，包含**完整代码**、**架构图**、**原理讲解**和**常见问题**
-
 ---
 
 ## 技术架构
@@ -167,12 +165,6 @@ go run .
 | 样式 | [Lipgloss](https://github.com/charmbracelet/lipgloss) | 终端样式库 |
 | LLM | 智谱 GLM-4 | 国产大模型，OpenAI 兼容接口 |
 
-### 为什么选择 Go + Fantasy？
-
-- **性能**: 编译成单一二进制，启动快、内存占用低
-- **并发**: goroutine 天然适合流式处理
-- **跨平台**: 一次编译，Windows/Mac/Linux 都能跑
-- **Fantasy**: 比 LangChain 更轻量，类型安全，无运行时依赖
 
 ---
 
@@ -245,7 +237,7 @@ MiniCode 是教学项目，目标是让你理解原理。和 Claude Code 的差�
 <details>
 <summary><b>Q: 教程更新频率？</b></summary>
 
-目前已完成 Day 1-4，后续内容持续更新中。欢迎 Watch 项目获取更新通知。
+目前已完成 Day 1-4，后续内容持续更新中。欢迎 Watch & Star 项目获取更新通知。
 </details>
 
 ---
@@ -272,7 +264,7 @@ MiniCode 是教学项目，目标是让你理解原理。和 Claude Code 的差�
 
 ## License
 
-MIT License - 随便用，注明出处就行
+MIT License
 
 ---
 
