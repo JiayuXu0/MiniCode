@@ -19,7 +19,7 @@ type chatMessage struct {
 }
 
 type agentResponseMsg struct {
-	content   string
+	result    *fantasy.AgentResult // 完整的 AgentResult，包含所有 Steps
 	userInput string
 	err       error
 }
@@ -47,6 +47,17 @@ var (
 	assistantStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#874BFD"))
 
+	reasoningStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#666666")).
+			Italic(true)
+
+	toolCallStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFA500")).
+			Bold(true)
+
+	toolResultStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#888888"))
+
 	borderStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#7D56F4"))
@@ -72,7 +83,7 @@ func NewTUI(agent fantasy.Agent) model {
 			if err != nil {
 				return agentResponseMsg{err: err, userInput: input}
 			}
-			return agentResponseMsg{content: result.Response.Content.Text(), userInput: input}
+			return agentResponseMsg{result: result, userInput: input}
 		}
 	}
 
@@ -128,15 +139,46 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				content: fmt.Sprintf("Error: %v", msg.err),
 			})
 		} else {
-			m.messages = append(m.messages, chatMessage{
-				role:    "assistant",
-				content: msg.content,
-			})
+			// 遍历所有 step，提取显示内容
+			for _, step := range msg.result.Steps {
+				// 显示推理过程
+				if reasoningText := step.Content.ReasoningText(); reasoningText != "" {
+					m.messages = append(m.messages, chatMessage{
+						role:    "reasoning",
+						content: reasoningText,
+					})
+				}
+
+				// 显示工具调用
+				for _, tc := range step.Content.ToolCalls() {
+					m.messages = append(m.messages, chatMessage{
+						role:    "tool_call",
+						content: fmt.Sprintf("%s(%s)", tc.ToolName, tc.Input),
+					})
+				}
+
+				// 显示工具结果
+				for _, tr := range step.Content.ToolResults() {
+					m.messages = append(m.messages, chatMessage{
+						role:    "tool_result",
+						content: fmt.Sprintf("[%s] %v", tr.ToolName, tr.Result),
+					})
+				}
+
+				// 显示文本回复
+				if text := step.Content.Text(); text != "" {
+					m.messages = append(m.messages, chatMessage{
+						role:    "assistant",
+						content: text,
+					})
+				}
+			}
+
+			// 正确累积历史：用户消息 + 所有 step 的 messages（包含工具调用链）
 			m.agentMsgs = append(m.agentMsgs, fantasy.NewUserMessage(msg.userInput))
-			m.agentMsgs = append(m.agentMsgs, fantasy.Message{
-				Role:    fantasy.MessageRoleAssistant,
-				Content: []fantasy.MessagePart{fantasy.TextPart{Text: msg.content}},
-			})
+			for _, step := range msg.result.Steps {
+				m.agentMsgs = append(m.agentMsgs, step.Messages...)
+			}
 		}
 		m.viewport.SetContent(m.renderMessages())
 		m.viewport.GotoBottom()
@@ -213,13 +255,26 @@ func (m model) renderMessages() string {
 
 	var sb strings.Builder
 	for _, msg := range m.messages {
-		if msg.role == "user" {
+		switch msg.role {
+		case "user":
 			sb.WriteString(userStyle.Render("You: "))
 			sb.WriteString(msg.content)
 			sb.WriteString("\n\n")
-		} else {
+		case "assistant":
 			sb.WriteString(assistantStyle.Render("Assistant: "))
 			sb.WriteString(msg.content)
+			sb.WriteString("\n\n")
+		case "reasoning":
+			sb.WriteString(reasoningStyle.Render("💭 Thinking: "))
+			sb.WriteString(reasoningStyle.Render(msg.content))
+			sb.WriteString("\n\n")
+		case "tool_call":
+			sb.WriteString(toolCallStyle.Render("🔧 Tool: "))
+			sb.WriteString(msg.content)
+			sb.WriteString("\n")
+		case "tool_result":
+			sb.WriteString(toolResultStyle.Render("   → "))
+			sb.WriteString(toolResultStyle.Render(msg.content))
 			sb.WriteString("\n\n")
 		}
 	}
