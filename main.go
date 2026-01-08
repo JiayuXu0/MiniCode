@@ -19,7 +19,15 @@ import (
 const (
 	baseURL      = "https://open.bigmodel.cn/api/coding/paas/v4"
 	modelID      = "glm-4.7"
-	systemPrompt = "你是一个有帮助的 AI 助手，请用中文回答用户的问题。"
+	systemPrompt = `You are a helpful coding assistant with file system tools.
+
+					Available tools:
+					- glob: Find files by pattern
+					- view: Read file contents
+					- grep: Search file contents
+
+					When asked about code or files, use tools to gather information.
+					You may need multiple tool calls. Respond in the user's language.`
 )
 
 func main() {
@@ -53,11 +61,15 @@ func main() {
 
 	agent := fantasy.NewAgent(model,
 		fantasy.WithSystemPrompt(systemPrompt),
-		fantasy.WithTools(tools.NewGlobTool()),
+		fantasy.WithTools(
+			tools.NewGlobTool(),
+			tools.NewViewTool(),
+			tools.NewGrepTool(),
+		),
 	)
 
 	m := tui.NewTUI(agent)
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("运行错误: %v", err)
 		os.Exit(1)
