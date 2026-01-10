@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"charm.land/fantasy"
+	"github.com/JiayuXu0/MiniCode/internal/styles"
 )
 
 // Model 是 TUI 的状态模型
@@ -42,10 +43,17 @@ type Model struct {
 	// 动画和统计
 	spinnerFrame int // 动画帧索引
 	totalTokens  int // Token 统计
+
+	// 样式系统
+	styles   *styles.Styles
+	darkMode bool
 }
 
 // New 创建新的 TUI 实例
 func New(agent fantasy.Agent) *Model {
+	// 使用默认暗色主题
+	s := styles.NewStyles(styles.DefaultDarkTheme)
+
 	ta := textarea.New()
 	ta.Placeholder = ""
 	ta.Prompt = ""
@@ -62,6 +70,8 @@ func New(agent fantasy.Agent) *Model {
 		viewport: vp,
 		agent:    agent,
 		focus:    focusTextarea,
+		styles:   s,
+		darkMode: true,
 	}
 }
 
@@ -73,4 +83,14 @@ func (m *Model) SetProgram(p *tea.Program) {
 // Init 实现 tea.Model 接口
 func (m *Model) Init() tea.Cmd {
 	return textarea.Blink
+}
+
+// toggleTheme 切换主题
+func (m *Model) toggleTheme() {
+	m.darkMode = !m.darkMode
+	if m.darkMode {
+		m.styles = styles.NewStyles(styles.DefaultDarkTheme)
+	} else {
+		m.styles = styles.NewStyles(styles.DefaultLightTheme)
+	}
 }

@@ -84,6 +84,13 @@ func (m *Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
+	// Ctrl+T 切换主题
+	if msg.Type == tea.KeyCtrlT {
+		m.toggleTheme()
+		m.viewport.SetContent(m.renderMessages())
+		return m, nil
+	}
+
 	// viewport 模式下的按键处理
 	if m.focus == focusViewport {
 		switch msg.Type {

@@ -5,8 +5,20 @@ import (
 	"strings"
 
 	"charm.land/fantasy"
+	"github.com/JiayuXu0/MiniCode/internal/styles"
 	"github.com/charmbracelet/lipgloss"
 )
+
+// === 显示常量 ===
+
+const (
+	toolBoxMaxLines  = 5 // 工具调用框最大显示行数
+	thinkingMaxLines = 6 // 思考区域最大显示行数
+)
+
+// === 动画帧 ===
+
+var spinnerFrames = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 
 // View 实现 tea.Model 接口，渲染界面
 func (m *Model) View() string {
@@ -14,18 +26,11 @@ func (m *Model) View() string {
 		return "Loading..."
 	}
 
-	title := titleStyle.Render("MiniCode")
+	title := m.styles.Title.Render("MiniCode")
 
 	// 根据焦点状态设置边框颜色
-	viewportBorder := borderStyle
-	inputBorder := borderStyle
-	if m.focus == focusViewport {
-		viewportBorder = viewportBorder.BorderForeground(colorWarning)
-		inputBorder = inputBorder.BorderForeground(colorDim)
-	} else {
-		viewportBorder = viewportBorder.BorderForeground(colorDim)
-		inputBorder = inputBorder.BorderForeground(colorPrimary)
-	}
+	viewportBorder := m.styles.BoxWithFocus(m.focus == focusViewport)
+	inputBorder := m.styles.InputBoxWithFocus(m.focus == focusTextarea)
 
 	messagesBox := viewportBorder.
 		Width(m.width - 2).
@@ -54,11 +59,16 @@ func (m *Model) renderStatus() string {
 	var status string
 	if m.streaming {
 		spinner := spinnerFrames[m.spinnerFrame]
-		status = fmt.Sprintf("  %s Streaming... | Esc cancel", spinner)
+		// 使用渐变效果
+		gradient := styles.NewGradient(
+			m.styles.Theme().Primary,
+			m.styles.Theme().Accent,
+		)
+		status = "  " + styles.RenderGradientText(spinner+" Streaming...", gradient) + " | Esc cancel"
 	} else if m.focus == focusViewport {
-		status = "  ↑↓ scroll | Tab switch | Ctrl+C quit"
+		status = "  ↑↓ scroll | Tab switch | Ctrl+T theme | Ctrl+C quit"
 	} else {
-		status = "  Enter send | Tab switch | Ctrl+C quit"
+		status = "  Enter send | Tab switch | Ctrl+T theme | Ctrl+C quit"
 	}
 
 	// 始终显示 token 统计
@@ -71,7 +81,7 @@ func (m *Model) renderStatus() string {
 // renderMessages 渲染消息列表
 func (m *Model) renderMessages() string {
 	if len(m.history) == 0 && !m.streaming {
-		return placeholderStyle.Render("开始对话吧...")
+		return m.styles.Placeholder.Render("开始对话吧...")
 	}
 
 	var sb strings.Builder
@@ -80,7 +90,7 @@ func (m *Model) renderMessages() string {
 	for _, msg := range m.history {
 		switch msg.Role {
 		case fantasy.MessageRoleUser:
-			sb.WriteString(userStyle.Render("You: "))
+			sb.WriteString(m.styles.UserLabel.Render("You: "))
 			sb.WriteString(getMessageText(msg))
 			sb.WriteString("\n\n")
 
@@ -98,7 +108,7 @@ func (m *Model) renderMessages() string {
 					sb.WriteString("\n")
 				case fantasy.TextPart:
 					if p.Text != "" {
-						sb.WriteString(assistantStyle.Render("Assistant: "))
+						sb.WriteString(m.styles.AssistantLabel.Render("Assistant: "))
 						sb.WriteString(p.Text)
 						sb.WriteString("\n\n")
 					}
@@ -133,7 +143,7 @@ func (m *Model) renderMessages() string {
 				}
 			case partTypeText:
 				if part.content != "" {
-					sb.WriteString(assistantStyle.Render("Assistant: "))
+					sb.WriteString(m.styles.AssistantLabel.Render("Assistant: "))
 					sb.WriteString(part.content)
 					// 只在最后一个 text part 显示光标
 					if m.isLastTextPart(i) {
@@ -198,12 +208,12 @@ func (m *Model) renderToolBox(name, input, output, status string) string {
 	default:
 		header = fmt.Sprintf("Tool: %s", name)
 	}
-	content.WriteString(toolHeaderStyle.Render(header))
+	content.WriteString(m.styles.ToolHeader.Render(header))
 
 	// 输入参数
 	if input != "" {
 		content.WriteString("\n")
-		content.WriteString(toolContentStyle.Render(truncateLine(input, lineWidth)))
+		content.WriteString(m.styles.ToolContent.Render(truncateLine(input, lineWidth)))
 	}
 
 	// 输出结果（限制行数）
@@ -215,14 +225,14 @@ func (m *Model) renderToolBox(name, input, output, status string) string {
 			displayLines = lines[:toolBoxMaxLines]
 		}
 		for i, line := range displayLines {
-			content.WriteString(toolContentStyle.Render(truncateLine(line, lineWidth)))
+			content.WriteString(m.styles.ToolContent.Render(truncateLine(line, lineWidth)))
 			if i < len(displayLines)-1 {
 				content.WriteString("\n")
 			}
 		}
 		if len(lines) > toolBoxMaxLines {
 			content.WriteString("\n")
-			content.WriteString(toolContentStyle.Render(fmt.Sprintf("... (%d more lines)", len(lines)-toolBoxMaxLines)))
+			content.WriteString(m.styles.ToolContent.Render(fmt.Sprintf("... (%d more lines)", len(lines)-toolBoxMaxLines)))
 		}
 	}
 
@@ -230,7 +240,7 @@ func (m *Model) renderToolBox(name, input, output, status string) string {
 	if boxWidth < 20 {
 		boxWidth = 20
 	}
-	return toolBoxStyle.Width(boxWidth).Render(content.String())
+	return m.styles.ToolBox.Width(boxWidth).Render(content.String())
 }
 
 // renderThinkingBox 渲染思考区域（限制最大行数，显示最新内容）
@@ -250,12 +260,12 @@ func (m *Model) renderThinkingBox(content string) string {
 	startLine := 0
 	if len(lines) > thinkingMaxLines {
 		startLine = len(lines) - thinkingMaxLines
-		sb.WriteString(reasoningStyle.Render(fmt.Sprintf("... (%d lines above)\n", startLine)))
+		sb.WriteString(m.styles.Reasoning.Render(fmt.Sprintf("... (%d lines above)\n", startLine)))
 	}
 
 	// 渲染可见行
 	for i := startLine; i < len(lines); i++ {
-		sb.WriteString(reasoningStyle.Render(lines[i]))
+		sb.WriteString(m.styles.Reasoning.Render(lines[i]))
 		if i < len(lines)-1 {
 			sb.WriteString("\n")
 		}
@@ -266,5 +276,5 @@ func (m *Model) renderThinkingBox(content string) string {
 		boxWidth = 20
 	}
 
-	return thinkingBoxStyle.Width(boxWidth).Render(sb.String())
+	return m.styles.ThinkingBox.Width(boxWidth).Render(sb.String())
 }

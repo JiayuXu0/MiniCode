@@ -35,4 +35,7 @@ cspell.json
 MiniCode
 
 # Claude Code
-CLAUDE.md.DS_Store
+CLAUDE.md
+
+# macOS
+.DS_Store
