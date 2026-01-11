@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>30 天从零打造你自己的 Claude Code (Day 6/30)</strong>
+  <strong>30 天从零打造你自己的 Claude Code (Day 7/30)</strong>
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go" alt="Go Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
   <a href="https://github.com/JiayuXu0/MiniCode/stargazers"><img src="https://img.shields.io/github/stars/JiayuXu0/MiniCode?style=flat" alt="Stars"></a>
-  <a href="docs/"><img src="https://img.shields.io/badge/Tutorial-Day%206%2F30-orange" alt="Progress"></a>
+  <a href="docs/"><img src="https://img.shields.io/badge/Tutorial-Day%207%2F30-orange" alt="Progress"></a>
 </p>
 
 
@@ -124,7 +124,7 @@ go run .
 | **Day 4** | [实现流式输出](docs/04.md) | Streaming API、跨 goroutine 通信、取消机制 | ✅ |
 | **Day 5** | [统一样式系统](docs/05.md) | Lip Gloss 主题、渐变色、主题切换 | ✅ |
 | **Day 6** | [权限系统](docs/06.md) | Channel 阻塞、危险命令检测、权限对话框 | ✅ |
-| Day 7 | 命令行参数 | Flag 解析、配置文件 | 📋 |
+| **Day 7** | [配置系统](docs/07.md) | JSON 配置、变量解析、层级合并 | ✅ |
 | Day 8-10 | 高级工具 | 搜索优化、并行执行 | 📋 |
 | Day 11-20 | Agent 循环 | 决策引擎、上下文管理 | 📋 |
 | Day 21-30 | 高级特性 | 子 Agent、记忆、部署 | 📋 |
@@ -248,7 +248,7 @@ MiniCode 是教学项目，目标是让你理解原理。和 Claude Code 的差�
 <details>
 <summary><b>Q: 教程更新频率？</b></summary>
 
-目前已完成 Day 1-6，后续内容持续更新中。欢迎 Watch & Star 项目获取更新通知。
+目前已完成 Day 1-7，后续内容持续更新中。欢迎 Watch & Star 项目获取更新通知。
 </details>
 
 ---

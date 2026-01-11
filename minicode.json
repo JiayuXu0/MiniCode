@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "zhipu": {
+      "api_key": "$OPENAI_API_KEY",
+      "base_url": "https://open.bigmodel.cn/api/coding/paas/v4",
+      "name": "zai"
+    }
+  },
+  "models": {
+    "default": "glm-4.7"
+  },
+  "options": {
+    "max_tokens": 4096
+  }
+}
