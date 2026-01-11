@@ -81,15 +81,28 @@ func main() {
 func createModel(ctx context.Context, cfg *config.Config) (fantasy.LanguageModel, error) {
 	modelName := cfg.GetDefaultModel()
 
-	// 优先使用配置中的 zhipu provider（智谱 GLM）
-	if providerCfg, ok := cfg.GetProvider("zhipu"); ok {
-		return createZhipuModel(ctx, providerCfg, modelName)
+	// 按优先级尝试不同的 provider
+	providers := []string{"zhipu", "openrouter", "bailian", "openai"}
+
+	for _, providerName := range providers {
+		if providerCfg, ok := cfg.GetProvider(providerName); ok {
+			switch providerName {
+			case "zhipu":
+				return createOpenAICompatModel(ctx, providerCfg, modelName, "https://open.bigmodel.cn/api/coding/paas/v4", "zai")
+			case "openrouter":
+				return createOpenAICompatModel(ctx, providerCfg, modelName, "https://openrouter.ai/api/v1", "openrouter")
+			case "bailian":
+				return createOpenAICompatModel(ctx, providerCfg, modelName, "https://dashscope.aliyuncs.com/compatible-mode/v1", "bailian")
+			case "openai":
+				return createOpenAICompatModel(ctx, providerCfg, modelName, "https://api.openai.com/v1", "openai")
+			}
+		}
 	}
 
 	// 回退到环境变量
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
-		return nil, fmt.Errorf("no API key found. Set it in config or OPENAI_API_KEY env var")
+		return nil, fmt.Errorf("no API key found. Add a provider in minicode.json or set OPENAI_API_KEY env var")
 	}
 
 	// 使用默认配置创建智谱模型
@@ -98,24 +111,26 @@ func createModel(ctx context.Context, cfg *config.Config) (fantasy.LanguageModel
 		BaseURL: "https://open.bigmodel.cn/api/coding/paas/v4",
 		Name:    "zai",
 	}
-	return createZhipuModel(ctx, providerCfg, modelName)
+	return createOpenAICompatModel(ctx, providerCfg, modelName, "https://open.bigmodel.cn/api/coding/paas/v4", "zai")
 }
 
-// createZhipuModel 创建智谱 GLM 模型（使用 openaicompat）
-func createZhipuModel(ctx context.Context, providerCfg config.ProviderConfig, modelName string) (fantasy.LanguageModel, error) {
+// createOpenAICompatModel 创建 OpenAI 兼容的模型
+// 支持：智谱 GLM、OpenRouter、百炼、OpenAI 等
+func createOpenAICompatModel(ctx context.Context, providerCfg config.ProviderConfig, modelName, defaultBaseURL, defaultName string) (fantasy.LanguageModel, error) {
 	if providerCfg.APIKey == "" {
-		return nil, fmt.Errorf("zhipu API key is required")
+		return nil, fmt.Errorf("API key is required")
 	}
 
-	// 默认值
+	// 使用配置的 base_url，如果没有则使用默认值
 	baseURL := providerCfg.BaseURL
 	if baseURL == "" {
-		baseURL = "https://open.bigmodel.cn/api/coding/paas/v4"
+		baseURL = defaultBaseURL
 	}
 
+	// 使用配置的 name，如果没有则使用默认值
 	name := providerCfg.Name
 	if name == "" {
-		name = "zai"
+		name = defaultName
 	}
 
 	// 创建 openaicompat provider
@@ -130,7 +145,7 @@ func createZhipuModel(ctx context.Context, providerCfg config.ProviderConfig, mo
 
 	model, err := provider.LanguageModel(ctx, modelName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get model: %w", err)
+		return nil, fmt.Errorf("failed to get model %s: %w", modelName, err)
 	}
 
 	return model, nil

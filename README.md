@@ -92,11 +92,33 @@ cd MiniCode
 
 ### 2. 获取 API Key
 
-前往 [智谱 AI](https://bigmodel.cn/) 注册并获取 API Key（有免费额度）
+**方式一：使用智谱 GLM（推荐，有免费额度）**
+
+前往 [智谱 AI](https://bigmodel.cn/) 注册并获取 API Key
 
 ```bash
 # 创建 .env 文件
-echo "OPENAI_API_KEY=你的API_KEY" > .env
+echo "OPENAI_API_KEY=你的智谱API_KEY" > .env
+```
+
+**方式二：使用其他平台**
+
+MiniCode 支持多种 LLM 平台，详见 [配置示例](docs/config-examples.md)：
+
+- **OpenRouter**: 支持多种模型（Claude、GPT-4 等）
+- **阿里云百炼**: 通义千问系列模型
+- **OpenAI**: GPT-4o、GPT-4o-mini 等
+
+快速切换配置：
+
+```bash
+# 使用 OpenRouter
+cp minicode.openrouter.json minicode.json
+# 编辑并填入你的 API Key
+
+# 使用阿里云百炼
+cp minicode.bailian.json minicode.json
+# 编辑并填入你的 API Key
 ```
 
 ### 3. 运行

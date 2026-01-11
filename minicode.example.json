@@ -1,0 +1,39 @@
+{
+  "// 注释": "配置示例 - 支持多种 LLM 平台",
+
+  "providers": {
+    "// 智谱 GLM": "https://bigmodel.cn/",
+    "zhipu": {
+      "api_key": "$OPENAI_API_KEY"
+    },
+
+    "// OpenRouter": "https://openrouter.ai/",
+    "openrouter": {
+      "api_key": "$OPENROUTER_API_KEY"
+    },
+
+    "// 阿里云百炼": "https://bailian.console.aliyun.com/",
+    "bailian": {
+      "api_key": "$DASHSCOPE_API_KEY"
+    },
+
+    "// OpenAI": "官方 OpenAI API",
+    "openai": {
+      "api_key": "$OPENAI_API_KEY"
+    }
+  },
+
+  "models": {
+    "default": "glm-4.7",
+    "// 可选": {
+      "智谱": "glm-4.7, glm-4-flash",
+      "OpenRouter": "anthropic/claude-3.5-sonnet, openai/gpt-4o",
+      "百炼": "qwen-turbo, qwen-plus",
+      "OpenAI": "gpt-4o, gpt-4o-mini"
+    }
+  },
+
+  "options": {
+    "max_tokens": 4096
+  }
+}

@@ -1,9 +1,7 @@
 {
   "providers": {
     "zhipu": {
-      "api_key": "$OPENAI_API_KEY",
-      "base_url": "https://open.bigmodel.cn/api/coding/paas/v4",
-      "name": "zai"
+      "api_key": "$OPENAI_API_KEY"
     }
   },
   "models": {

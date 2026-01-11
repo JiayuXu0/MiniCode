@@ -1,0 +1,20 @@
+{
+  "// 说明": "阿里云百炼配置示例",
+  "providers": {
+    "bailian": {
+      "api_key": "sk-your-dashscope-api-key-here"
+    }
+  },
+  "models": {
+    "default": "qwen3-coder-plus",
+    "// 其他可选模型": [
+      "qwen-turbo",
+      "qwen-plus",
+      "qwen-max",
+      "qwen-coder-turbo"
+    ]
+  },
+  "options": {
+    "max_tokens": 4096
+  }
+}
