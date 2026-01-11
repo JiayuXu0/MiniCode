@@ -26,6 +26,11 @@ func (m *Model) View() string {
 		return "Loading..."
 	}
 
+	// 如果有待确认的权限请求，显示对话框
+	if m.permPending != nil {
+		return m.renderPermissionDialog()
+	}
+
 	title := m.styles.Title.Render("MiniCode")
 
 	// 根据焦点状态设置边框颜色
@@ -277,4 +282,68 @@ func (m *Model) renderThinkingBox(content string) string {
 	}
 
 	return m.styles.ThinkingBox.Width(boxWidth).Render(sb.String())
+}
+
+// renderPermissionDialog 渲染权限确认对话框
+func (m *Model) renderPermissionDialog() string {
+	var sb strings.Builder
+
+	// 标题
+	title := m.styles.Warning.Bold(true).Render("⚠️  需要权限确认")
+
+	// 工具和操作信息
+	toolLine := fmt.Sprintf("工具: %s", m.permPending.ToolName)
+	actionLine := fmt.Sprintf("操作: %s", truncateLine(m.permPending.Action, m.width-20))
+	descLine := m.permPending.Description
+
+	// 按钮
+	buttons := []string{"Allow", "Deny", "Persistent"}
+	var btnViews []string
+	for i, btn := range buttons {
+		if i == m.permFocusIndex {
+			// 选中状态
+			btnViews = append(btnViews, m.styles.Title.Bold(true).Render("[ "+btn+" ]"))
+		} else {
+			// 未选中状态
+			btnViews = append(btnViews, m.styles.MutedText.Render("  "+btn+"  "))
+		}
+	}
+	buttonRow := strings.Join(btnViews, "   ")
+
+	// 提示
+	hint := m.styles.MutedText.Render("←/→ 切换  Enter 确认  Esc 取消")
+
+	// 组装内容
+	sb.WriteString("\n")
+	sb.WriteString(m.styles.ToolHeader.Render(toolLine))
+	sb.WriteString("\n")
+	sb.WriteString(m.styles.ToolContent.Render(actionLine))
+	sb.WriteString("\n\n")
+	sb.WriteString(m.styles.Reasoning.Render(descLine))
+	sb.WriteString("\n\n")
+	sb.WriteString(buttonRow)
+	sb.WriteString("\n\n")
+	sb.WriteString(hint)
+	sb.WriteString("\n")
+
+	// 对话框样式
+	dialogWidth := m.width - 10
+	if dialogWidth < 40 {
+		dialogWidth = 40
+	}
+
+	dialog := m.styles.Box.
+		BorderForeground(m.styles.Theme().Warning).
+		Width(dialogWidth).
+		Padding(1, 2).
+		Render(sb.String())
+
+	// 居中显示
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		"\n\n",
+		title,
+		"\n",
+		dialog,
+	)
 }

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>30 天从零打造你自己的 Claude Code (Day 4/30)</strong>
+  <strong>30 天从零打造你自己的 Claude Code (Day 6/30)</strong>
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go" alt="Go Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
   <a href="https://github.com/JiayuXu0/MiniCode/stargazers"><img src="https://img.shields.io/github/stars/JiayuXu0/MiniCode?style=flat" alt="Stars"></a>
-  <a href="docs/"><img src="https://img.shields.io/badge/Tutorial-Day%204%2F30-orange" alt="Progress"></a>
+  <a href="docs/"><img src="https://img.shields.io/badge/Tutorial-Day%206%2F30-orange" alt="Progress"></a>
 </p>
 
 
@@ -31,6 +31,8 @@
 
 - **流式输出** - 打字机效果，实时显示 AI 思考过程
 - **工具调用** - Glob/Grep/View/Bash/Write/Edit 六大工具
+- **权限系统** - 危险操作确认，支持持久授权
+- **主题切换** - Ctrl+T 切换暗色/亮色主题
 - **多轮对话** - 完整的上下文记忆
 - **取消支持** - Esc 随时中断，不浪费 Token
 
@@ -106,6 +108,7 @@ go run .
 **操作说明：**
 - `Enter` - 发送消息
 - `Tab` - 切换焦点（输入框 / 消息区）
+- `Ctrl+T` - 切换暗色/亮色主题
 - `Esc` - 取消当前请求 / 退出
 - `↑↓` - 滚动查看历史消息
 
@@ -119,10 +122,10 @@ go run .
 | **Day 2** | [给 Agent 添加工具](docs/02.md) | Tool 系统、Glob 文件搜索、AgentResult | ✅ |
 | **Day 3** | [构建交互式 TUI](docs/03.md) | Bubble Tea、Elm 架构、多轮对话 | ✅ |
 | **Day 4** | [实现流式输出](docs/04.md) | Streaming API、跨 goroutine 通信、取消机制 | ✅ |
-| Day 5 | 文件读写工具 | View/Write 实现、安全检查 | 📋 |
-| Day 6 | 代码编辑工具 | Edit with diff、冲突处理 | 📋 |
-| Day 7 | Bash 命令执行 | 安全沙箱、超时控制 | 📋 |
-| Day 8-10 | Grep 与高级搜索 | 正则匹配、上下文显示 | 📋 |
+| **Day 5** | [统一样式系统](docs/05.md) | Lip Gloss 主题、渐变色、主题切换 | ✅ |
+| **Day 6** | [权限系统](docs/06.md) | Channel 阻塞、危险命令检测、权限对话框 | ✅ |
+| Day 7 | 命令行参数 | Flag 解析、配置文件 | 📋 |
+| Day 8-10 | 高级工具 | 搜索优化、并行执行 | 📋 |
 | Day 11-20 | Agent 循环 | 决策引擎、上下文管理 | 📋 |
 | Day 21-30 | 高级特性 | 子 Agent、记忆、部署 | 📋 |
 
@@ -141,16 +144,19 @@ go run .
 │   │ (智谱 GLM)   │               │ update.go  - 事件处理     │   │
 │   │      ↓       │               │ view.go    - 界面渲染     │   │
 │   │ Agent        │◄─────────────▶│ stream.go  - 流式处理     │   │
-│   │ (Fantasy)    │               │ style.go   - 样式定义     │   │
+│   │ (Fantasy)    │               │ message.go - 消息类型     │   │
 │   └──────────────┘               └──────────────────────────┘   │
 │          │                                                      │
 │          ▼                                                      │
-│   tools/                                                        │
-│   ┌──────────────────────────────────────────────────────────┐  │
-│   │ glob.go   - 文件搜索     │ bash.go  - 命令执行          │  │
-│   │ view.go   - 文件查看     │ write.go - 文件写入          │  │
-│   │ grep.go   - 内容搜索     │ edit.go  - 代码编辑          │  │
-│   └──────────────────────────────────────────────────────────┘  │
+│   tools/                         internal/                      │
+│   ┌────────────────────────┐     ┌──────────────────────────┐   │
+│   │ glob.go  - 文件搜索    │     │ styles/    - 主题样式     │   │
+│   │ view.go  - 文件查看    │     │ permission/- 权限系统     │   │
+│   │ grep.go  - 内容搜索    │◄───▶│   ├─ permission.go       │   │
+│   │ bash.go  - 命令执行    │     │   └─ dangerous.go        │   │
+│   │ write.go - 文件写入    │     └──────────────────────────┘   │
+│   │ edit.go  - 代码编辑    │                                    │
+│   └────────────────────────┘                                    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -179,7 +185,6 @@ MiniCode/
 │   ├── view.go             # View 渲染
 │   ├── stream.go           # 流式处理
 │   ├── message.go          # 消息类型
-│   ├── style.go            # 样式定义
 │   └── util.go             # 工具函数
 ├── tools/                  # 工具集
 │   ├── glob.go             # 文件搜索
@@ -188,12 +193,18 @@ MiniCode/
 │   ├── bash.go             # 命令执行
 │   ├── write.go            # 文件写入
 │   └── edit.go             # 代码编辑
+├── internal/               # 内部模块
+│   ├── styles/             # 样式系统
+│   │   ├── theme.go        # 主题定义
+│   │   ├── styles.go       # 样式工厂
+│   │   └── gradient.go     # 渐变效果
+│   └── permission/         # 权限系统
+│       ├── permission.go   # 权限服务
+│       └── dangerous.go    # 危险命令检测
 ├── docs/                   # 教程文档
-│   ├── 01.md               # Day 1: 创建 Agent
-│   ├── 02.md               # Day 2: 添加工具
-│   ├── 03.md               # Day 3: TUI 界面
-│   └── 04.md               # Day 4: 流式输出
-└── .vscode/                # VSCode 调试配置
+│   ├── 01.md ~ 06.md       # Day 1-6 教程
+│   └── ...
+└── assets/                 # 静态资源
 ```
 
 ---
@@ -237,7 +248,7 @@ MiniCode 是教学项目，目标是让你理解原理。和 Claude Code 的差�
 <details>
 <summary><b>Q: 教程更新频率？</b></summary>
 
-目前已完成 Day 1-4，后续内容持续更新中。欢迎 Watch & Star 项目获取更新通知。
+目前已完成 Day 1-6，后续内容持续更新中。欢迎 Watch & Star 项目获取更新通知。
 </details>
 
 ---

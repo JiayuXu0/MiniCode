@@ -8,16 +8,27 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"charm.land/fantasy"
+	"github.com/JiayuXu0/MiniCode/internal/permission"
 )
 
 // Update 实现 tea.Model 接口，处理所有消息
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		// 如果有待确认的权限请求，优先处理
+		if m.permPending != nil {
+			return m.handlePermissionKeyMsg(msg)
+		}
 		return m.handleKeyMsg(msg)
 
 	case tea.MouseMsg:
 		return m.handleMouseMsg(msg)
+
+	case permission.RequestMsg:
+		// 收到权限请求，显示对话框
+		m.permPending = msg.Req
+		m.permFocusIndex = 0
+		return m, nil
 
 	case streamTextMsg:
 		return m.handleStreamTextMsg(msg)
@@ -266,5 +277,35 @@ func (m *Model) handleWindowSizeMsg(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) 
 	m.viewport.Height = contentHeight
 	m.textarea.SetWidth(innerWidth)
 	m.viewport.SetContent(m.renderMessages())
+	return m, nil
+}
+
+// handlePermissionKeyMsg 处理权限对话框的按键事件
+func (m *Model) handlePermissionKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "left", "h":
+		// 向左切换按钮
+		m.permFocusIndex = (m.permFocusIndex - 1 + 3) % 3
+	case "right", "l", "tab":
+		// 向右切换按钮
+		m.permFocusIndex = (m.permFocusIndex + 1) % 3
+	case "enter":
+		// 确认选择
+		var resp permission.Response
+		switch m.permFocusIndex {
+		case 0:
+			resp = permission.Granted
+		case 1:
+			resp = permission.Denied
+		case 2:
+			resp = permission.Persistent
+		}
+		m.permService.Respond(m.permPending, resp)
+		m.permPending = nil
+	case "escape":
+		// Esc 键拒绝
+		m.permService.Respond(m.permPending, permission.Denied)
+		m.permPending = nil
+	}
 	return m, nil
 }

@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"charm.land/fantasy"
+	"github.com/JiayuXu0/MiniCode/internal/permission"
 	"github.com/JiayuXu0/MiniCode/internal/styles"
 )
 
@@ -47,10 +48,15 @@ type Model struct {
 	// 样式系统
 	styles   *styles.Styles
 	darkMode bool
+
+	// 权限系统
+	permService    *permission.Service  // 权限服务
+	permPending    *permission.Request  // 当前待确认的请求
+	permFocusIndex int                  // 按钮焦点 (0=Allow, 1=Deny, 2=Persistent)
 }
 
 // New 创建新的 TUI 实例
-func New(agent fantasy.Agent) *Model {
+func New(agent fantasy.Agent, permService *permission.Service) *Model {
 	// 使用默认暗色主题
 	s := styles.NewStyles(styles.DefaultDarkTheme)
 
@@ -66,12 +72,13 @@ func New(agent fantasy.Agent) *Model {
 	vp.MouseWheelEnabled = true
 
 	return &Model{
-		textarea: ta,
-		viewport: vp,
-		agent:    agent,
-		focus:    focusTextarea,
-		styles:   s,
-		darkMode: true,
+		textarea:    ta,
+		viewport:    vp,
+		agent:       agent,
+		focus:       focusTextarea,
+		styles:      s,
+		darkMode:    true,
+		permService: permService,
 	}
 }
 
