@@ -1,11 +1,11 @@
 {
   "providers": {
-    "zhipu": {
-      "api_key": "$OPENAI_API_KEY"
+    "openrouter": {
+      "api_key": "$OPENROUTER_API_KEY"
     }
   },
   "models": {
-    "default": "glm-4.7"
+    "default": "openai/gpt-5.1-codex"
   },
   "options": {
     "max_tokens": 4096

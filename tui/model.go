@@ -10,13 +10,15 @@ import (
 	"charm.land/fantasy"
 	"github.com/JiayuXu0/MiniCode/internal/permission"
 	"github.com/JiayuXu0/MiniCode/internal/styles"
+	"github.com/JiayuXu0/MiniCode/internal/tui/components/statusbar"
 )
 
 // Model 是 TUI 的状态模型
 type Model struct {
 	// UI 组件
-	textarea textarea.Model
-	viewport viewport.Model
+	textarea  textarea.Model
+	viewport  viewport.Model
+	statusbar statusbar.Model
 
 	// 消息历史（用于 API 调用和 UI 渲染）
 	history []fantasy.Message
@@ -34,6 +36,9 @@ type Model struct {
 	// 流式内容（临时存储，流式完成后清空）
 	streamParts []streamPart
 
+	// 当前流式调用的 token 计数（用于增量统计）
+	streamTokenCount int
+
 	// 界面尺寸
 	width  int
 	height int
@@ -41,7 +46,7 @@ type Model struct {
 	// 焦点状态
 	focus focus
 
-	// 动画和统计
+	// 动画和统计（保留用于兼容性）
 	spinnerFrame int // 动画帧索引
 	totalTokens  int // Token 统计
 
@@ -56,7 +61,7 @@ type Model struct {
 }
 
 // New 创建新的 TUI 实例
-func New(agent fantasy.Agent, permService *permission.Service) *Model {
+func New(agent fantasy.Agent, permService *permission.Service, modelName string) *Model {
 	// 使用默认暗色主题
 	s := styles.NewStyles(styles.DefaultDarkTheme)
 
@@ -71,9 +76,15 @@ func New(agent fantasy.Agent, permService *permission.Service) *Model {
 	vp := viewport.New(80, 20)
 	vp.MouseWheelEnabled = true
 
+	sb := statusbar.New(s)
+	if modelName != "" {
+		sb.SetModel(modelName)
+	}
+
 	return &Model{
 		textarea:    ta,
 		viewport:    vp,
+		statusbar:   sb,
 		agent:       agent,
 		focus:       focusTextarea,
 		styles:      s,
@@ -100,4 +111,5 @@ func (m *Model) toggleTheme() {
 	} else {
 		m.styles = styles.NewStyles(styles.DefaultLightTheme)
 	}
+	m.statusbar.SetStyles(m.styles)
 }

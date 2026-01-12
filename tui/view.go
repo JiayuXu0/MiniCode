@@ -47,15 +47,15 @@ func (m *Model) View() string {
 		Height(m.textarea.Height() + 2).
 		Render(m.textarea.View())
 
-	// 状态栏
-	status := m.renderStatus()
+	// 状态栏（使用新的组件）
+	statusBar := m.statusbar.View()
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
 		messagesBox,
 		inputBox,
-		status,
+		statusBar,
 	)
 }
 

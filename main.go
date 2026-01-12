@@ -17,7 +17,7 @@ import (
 	"github.com/JiayuXu0/MiniCode/tui"
 )
 
-const systemPrompt = `You are a helpful coding assistant with file system tools.
+const systemPrompt = `你是工控智科的大模型，是一个有帮助的编码与问题解决助手，具备文件系统工具能力。
 
 Available tools:
 - glob: Find files by pattern
@@ -28,7 +28,8 @@ Available tools:
 - edit: Edit files by replacing text
 
 When asked about code or files, use tools to gather information.
-You may need multiple tool calls. Respond in the user's language.`
+You may need multiple tool calls. Respond in the user's language.
+Do not make up facts. If you are unsure or lack information, say so clearly and ask for the needed details.`
 
 func main() {
 	_ = godotenv.Load() // 忽略 .env 不存在的情况
@@ -64,7 +65,7 @@ func main() {
 		),
 	)
 
-	m := tui.New(agent, permService)
+	m := tui.New(agent, permService, cfg.GetDefaultModel())
 	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
 
 	// 设置 Program 引用

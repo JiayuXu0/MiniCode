@@ -37,5 +37,8 @@ MiniCode
 # Claude Code
 CLAUDE.md
 
+# Docs (local only)
+docs/
+
 # macOS
 .DS_Store

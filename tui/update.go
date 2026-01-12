@@ -9,6 +9,7 @@ import (
 
 	"charm.land/fantasy"
 	"github.com/JiayuXu0/MiniCode/internal/permission"
+	"github.com/JiayuXu0/MiniCode/internal/tui/components/statusbar"
 )
 
 // Update 实现 tea.Model 接口，处理所有消息
@@ -43,6 +44,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleStreamToolResultMsg(msg)
 
 	case streamTokenUpdateMsg:
+		increment := msg.tokens - m.streamTokenCount
+		if increment > 0 {
+			m.statusbar.AddTokens(increment)
+		}
+		m.streamTokenCount = msg.tokens
 		m.totalTokens = msg.tokens
 		return m, nil
 
@@ -135,6 +141,9 @@ func (m *Model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.streaming = true
 		m.streamParts = nil
 		m.totalTokens = 0
+		m.streamTokenCount = 0
+		m.statusbar.SetTokens(0)
+		m.statusbar.SetStatus(statusbar.StatusStreaming)
 		m.viewport.SetContent(m.renderMessages())
 		m.viewport.GotoBottom()
 
@@ -230,14 +239,21 @@ func (m *Model) handleStreamDoneMsg(msg streamDoneMsg) (tea.Model, tea.Cmd) {
 			if len(m.history) > 0 {
 				m.history = m.history[:len(m.history)-1]
 			}
+			m.statusbar.SetStatus(statusbar.StatusReady)
+		} else {
+			m.statusbar.SetError(msg.err.Error())
 		}
 	} else if msg.result != nil {
 		// 直接把 Agent 返回的消息追加到历史
 		for _, step := range msg.result.Steps {
 			m.history = append(m.history, step.Messages...)
 		}
+		m.statusbar.SetStatus(statusbar.StatusReady)
+		m.statusbar.SetTokens(m.totalTokens)
+		m.statusbar.IncrementMessages()
 	}
 
+	m.streamTokenCount = 0
 	m.streamParts = nil
 	m.viewport.SetContent(m.renderMessages())
 	m.viewport.GotoBottom()
@@ -248,6 +264,7 @@ func (m *Model) handleStreamDoneMsg(msg streamDoneMsg) (tea.Model, tea.Cmd) {
 func (m *Model) handleTickMsg() (tea.Model, tea.Cmd) {
 	if m.streaming {
 		m.spinnerFrame = (m.spinnerFrame + 1) % len(spinnerFrames)
+		m.statusbar.Tick() // 更新状态栏动画
 		if m.needsRefresh {
 			m.viewport.SetContent(m.renderMessages())
 			m.viewport.GotoBottom()
@@ -276,6 +293,7 @@ func (m *Model) handleWindowSizeMsg(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd) 
 	m.viewport.Width = innerWidth
 	m.viewport.Height = contentHeight
 	m.textarea.SetWidth(innerWidth)
+	m.statusbar.SetWidth(m.width - 2) // 设置状态栏宽度
 	m.viewport.SetContent(m.renderMessages())
 	return m, nil
 }
