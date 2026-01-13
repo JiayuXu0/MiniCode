@@ -55,9 +55,9 @@ type Model struct {
 	darkMode bool
 
 	// 权限系统
-	permService    *permission.Service  // 权限服务
-	permPending    *permission.Request  // 当前待确认的请求
-	permFocusIndex int                  // 按钮焦点 (0=Allow, 1=Deny, 2=Persistent)
+	permService    *permission.Service // 权限服务
+	permPending    *permission.Request // 当前待确认的请求
+	permFocusIndex int                 // 按钮焦点 (0=Allow, 1=Deny, 2=Persistent)
 }
 
 // New 创建新的 TUI 实例
